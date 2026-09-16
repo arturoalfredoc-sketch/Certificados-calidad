@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2D57">
+<title>Certificados de calidad · Novacero</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📄</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+[hidden]{display:none!important}
+:root{
+  --navy:#0F2D57; --navy-2:#1B4580; --yellow:#FFD100;
+  --steel:#E3E8EE; --steel-2:#C9D2DC; --paper:#F4F6F8; --ink:#17202B; --muted:#5B6673;
+  --ok:#1E7B4A; --ok-bg:#E3F3EA; --bad:#B3261E; --bad-bg:#FBE7E5;
+  --r:6px;
+  --f:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --fc:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;max-width:100%;overflow-x:hidden}
+body{font-family:var(--f);color:var(--ink);background:var(--paper);font-size:16px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+
+.top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
+.top-in{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 14px}
+.brand{background:var(--yellow);padding:5px 7px;border-radius:3px;display:flex;flex-shrink:0}
+.brand img{height:24px;display:block}
+.top h1{font-family:var(--fc);font-weight:700;font-size:1.3rem;margin:0;line-height:1.1;min-width:0}
+.top small{display:block;font-size:.8rem;color:#B9C7DA;font-family:var(--f);font-weight:400}
+.tabs{max-width:880px;margin:0 auto;display:flex;padding:0 6px}
+.tab{flex:1;background:none;border:0;color:#B9C7DA;padding:9px 6px 10px;font-weight:600;border-bottom:4px solid transparent;cursor:pointer;min-width:0}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--yellow)}
+.demo{background:#FFF4BF;color:#5A4600;font-size:.85rem;text-align:center;padding:6px 12px}
+
+main{width:100%;max-width:880px;margin:0 auto;padding:14px 14px 110px}
+@media(max-width:420px){main{padding:10px 10px 104px}}
+
+fieldset{border:0;margin:0 0 12px;padding:14px;background:#fff;border-radius:var(--r);border-left:5px solid var(--navy);min-width:0;width:100%}
+legend{font-family:var(--fc);font-weight:700;font-size:1.12rem;color:var(--navy);padding:0;float:left;width:100%;margin-bottom:8px}
+legend + *{clear:both}
+.grid{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
+.grid > *{min-width:0}
+@media(min-width:600px){.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}}
+label{display:block;font-size:.88rem;font-weight:600;color:var(--muted);margin-bottom:4px}
+input,select,textarea{display:block;width:100%;max-width:100%;min-width:0;border:1.5px solid var(--steel-2);border-radius:var(--r);padding:10px 12px;background:#fff;min-height:46px;font-size:16px}
+select{text-overflow:ellipsis}
+input[type="date"]{-webkit-appearance:none;appearance:none;line-height:24px}
+input:focus,select:focus,textarea:focus{border-color:var(--navy-2);outline:none;box-shadow:0 0 0 3px rgba(27,69,128,.18)}
+input[readonly]{background:var(--steel);color:#3A4552;border-color:var(--steel)}
+textarea{min-height:70px;resize:vertical}
+textarea.den{min-height:46px;resize:none;overflow:hidden;line-height:1.35}
+.hint{font-size:.83rem;color:var(--muted);margin-top:5px}
+.req::after{content:" *";color:var(--bad)}
+.normas{font-size:.84rem;color:var(--muted);background:var(--paper);padding:10px 12px;border-radius:var(--r);margin-top:10px;overflow-wrap:anywhere}
+.normas b{color:var(--ink);font-weight:600}
+
+.check{display:flex;gap:10px;align-items:flex-start;background:var(--paper);padding:12px;border-radius:var(--r);margin-top:10px;cursor:pointer;color:var(--ink);font-weight:500;font-size:.95rem}
+.check input{width:22px;min-height:22px;height:22px;flex-shrink:0;margin:1px 0 0;accent-color:var(--navy)}
+
+.item{display:grid;grid-template-columns:minmax(0,1fr) 120px 42px;gap:8px;align-items:end;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--steel)}
+.item > *{min-width:0}
+@media(max-width:560px){.item{grid-template-columns:minmax(0,1fr) 42px}.item .lote{grid-column:1}.item .del{grid-column:2;grid-row:1/3;align-self:center}}
+.del{height:46px;border:0;background:var(--bad-bg);color:var(--bad);border-radius:var(--r);font-size:1.3rem;cursor:pointer}
+.link-btn{background:none;border:1.5px dashed var(--steel-2);color:var(--navy-2);border-radius:var(--r);padding:10px;width:100%;font-weight:600;cursor:pointer}
+
+.calc{background:#EEF3F9;border-radius:var(--r);padding:12px;margin-top:12px}
+.calc .res{font-size:.88rem;color:var(--navy);margin-top:6px;font-weight:500}
+.calc .res.err{color:var(--bad)}
+
+.traz{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.traz > div{position:relative}
+.traz input{position:absolute;opacity:0;pointer-events:none;left:8px;top:8px;width:1px;min-height:0}
+.traz label{margin:0;border:2px solid var(--steel-2);border-radius:var(--r);padding:13px 8px;text-align:center;font-size:1rem;color:var(--ink);cursor:pointer;background:#fff}
+.traz input:focus-visible + label{outline:3px solid var(--yellow)}
+.traz input[value="Correcta"]:checked + label{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.traz input[value="Incorrecta"]:checked + label{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+
+.actions{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--steel-2);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:15}
+.actions-in{max-width:880px;margin:0 auto;display:flex;gap:10px}
+.btn{border:0;border-radius:var(--r);padding:11px 14px;font-weight:600;cursor:pointer;min-height:46px}
+.btn.primary{background:var(--navy);color:#fff;flex:1}
+.btn.primary:disabled{opacity:.6}
+.btn.ghost{background:var(--steel);color:var(--ink)}
+.btn.yellow{background:var(--yellow);color:var(--ink)}
+.editing{background:var(--yellow);color:var(--ink);padding:10px 12px;border-radius:var(--r);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;flex-wrap:wrap}
+.editing button{background:rgba(0,0,0,.08);border:0;border-radius:4px;padding:6px 10px;font-weight:600;cursor:pointer}
+
+.search{background:#fff;border-radius:var(--r);padding:14px;margin-bottom:12px;border-left:5px solid var(--yellow)}
+.stats{display:flex;gap:14px;font-size:.88rem;color:var(--muted);margin:10px 0 0;flex-wrap:wrap}
+.stats b{color:var(--ink)}
+.detalle{background:#fff;border-radius:var(--r);padding:14px;margin-bottom:12px;display:grid;gap:5px;overflow-wrap:anywhere}
+.rec-h{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.rec-num{font-family:var(--fc);font-weight:700;font-size:1.25rem;color:var(--navy)}
+.rec-cli{font-weight:600}
+.rec-meta{font-size:.87rem;color:var(--muted)}
+.badge{font-size:.78rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.btn-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+@media(min-width:600px){.btn-row{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.btn-row .btn{min-height:42px;padding:8px 10px;font-size:.93rem}
+.grafico{background:#fff;border-radius:var(--r);padding:14px;margin-top:12px;border-left:5px solid var(--navy)}
+.graf-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.graf-h strong{font-family:var(--fc);font-size:1.12rem;color:var(--navy)}
+.graf-ley{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.lg{display:inline-block;width:12px;height:12px;border-radius:2px;margin-left:6px}
+.lg.ok{background:var(--ok)}.lg.bad{background:var(--bad)}
+#grafOrigen svg{display:block;width:100%;height:auto}
+.empty{text-align:center;color:var(--muted);padding:24px 10px;background:#fff;border-radius:var(--r)}
+
+.modal{position:fixed;inset:0;height:100dvh;background:rgba(15,45,87,.6);z-index:40;display:flex;flex-direction:column}
+.modal-bar{background:var(--navy);color:#fff;padding:8px 10px;padding-top:calc(8px + env(safe-area-inset-top));display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.modal-bar strong{flex:1 1 100%;font-family:var(--fc);font-size:1.1rem}
+@media(min-width:600px){.modal-bar strong{flex:1 1 auto}}
+.modal-bar .btn{min-height:40px;padding:7px 12px;font-size:.9rem;flex:1 1 auto}
+.modal-body{flex:1;overflow:auto;padding:10px;min-height:0;-webkit-overflow-scrolling:touch}
+.warn{background:var(--bad-bg);color:var(--bad);padding:10px 12px;border-radius:var(--r);margin:0 0 10px;font-weight:600;font-size:.9rem}
+.sheet-wrap{width:1135px;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.25);transform-origin:top left}
+
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:var(--r);z-index:60;font-size:.92rem;max-width:90vw}
+
+/* Certificado: réplica de la hoja Excel (columnas B:K) */
+.cert{width:1135px;background:#fff;color:#000;padding:0}
+.ct{border-collapse:collapse;table-layout:fixed;width:1135px;border:1px solid #000;font-family:Tahoma,Verdana,"Segoe UI",Arial,sans-serif;font-size:14pt;line-height:1.2}
+.ct td{padding:1px 6px;vertical-align:middle;overflow-wrap:break-word}
+.ct td.bd{border:1px solid #000}
+.ct td.b{font-weight:bold}
+.ct td.nw{white-space:nowrap;padding-left:2px;padding-right:0;overflow:visible}
+.ct td.sm{font-size:10pt;color:#555}
+.ct td.im{position:relative;padding:0}
+.ct td.im img{position:absolute;display:block}
+/* Vista previa (diseño de la primera versión, formato A4) */
+.sheet-wrap.v1{width:794px}
+.cv{width:794px;min-height:1090px;padding:38px 42px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#000;background:#fff;line-height:1.35}
+.cv-frame{border:1px solid #000;padding:14px 18px 22px;min-height:1010px;position:relative}
+.cv .logo{display:flex;justify-content:flex-end;margin-bottom:26px}
+.cv .logo img{width:190px}
+.cv .num{position:absolute;top:16px;left:18px;font-size:10px;color:#444}
+.cv p{margin:0 0 9px}
+.cv .cli{display:grid;grid-template-columns:1fr 250px;margin:26px 0 16px;gap:4px}
+.cv .cli > div{display:flex;gap:8px}
+.cv .cli b{white-space:nowrap}
+.cv .cli .kv{display:grid;grid-template-columns:62px 1fr;row-gap:4px}
+.cv .norma{font-weight:bold}
+.cv table{border-collapse:collapse;width:100%}
+.cv td,.cv th{border:1px solid #000;padding:5px 6px;text-align:center;vertical-align:middle}
+.cv th{font-weight:normal}
+.cv .t-items{width:84%;margin:6px auto 22px}
+.cv .t-items th{font-weight:bold}
+.cv .t-items td{height:26px}
+.cv .t-req{margin:6px 0 20px}
+.cv .t-req .nob{border:0}
+.cv .firma{margin-top:10px}
+.cv .firma img{height:78px;display:block;margin:6px 0 -14px}
+.cv .firma b{display:block}
+#pdfArea{position:fixed;left:-20000px;top:0}
+#printArea{display:none}
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  html,body{background:#fff;overflow:visible}
+  body > *:not(#printArea){display:none!important}
+  #printArea{display:block}
+  #printArea .cert{margin:0 auto;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <span class="brand"><img src="data:image/png;base64,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" alt="Novacero"></span>
+    <h1>Certificados de calidad<small>Planta Guayaquil</small></h1>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="nuevo">Nuevo certificado</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="registros">Certificados creados</button>
+  </nav>
+</header>
+<div class="demo" id="demoBanner" hidden>Modo prueba: sin conexión a Google Sheets, los datos se guardan solo en este dispositivo.</div>
+
+<main>
+  <section class="panel" id="panel-nuevo">
+    <div class="editing" id="editBanner" hidden>
+      <span>Editando <span id="editNum"></span></span>
+      <button type="button" id="cancelEdit">Cancelar edición</button>
+    </div>
+
+    <fieldset>
+      <legend>Tipo de certificado</legend>
+      <div class="grid two">
+        <div>
+          <label for="tipo" class="req">Producto</label>
+          <select id="tipo"></select>
+        </div>
+        <div>
+          <label for="fecha" class="req">Fecha de emisión</label>
+          <input type="date" id="fecha">
+        </div>
+      </div>
+      <div id="optTuboWrap" class="grid two" style="margin-top:12px" hidden>
+        <div>
+          <label for="optGrado" class="req">Grado del acero</label>
+          <select id="optGrado"><option value="B">Grado B</option><option value="C">Grado C</option></select>
+        </div>
+        <div>
+          <label for="optForma" class="req">Forma</label>
+          <select id="optForma"><option value="circular">Circular</option><option value="cuadrado">Cuadrado / rectangular</option></select>
+        </div>
+      </div>
+      <label class="check" id="optA755Wrap" hidden>
+        <input type="checkbox" id="optA755" checked>
+        <span>Material prepintado: incluye ASTM A 755. Desmárcalo cuando sea aluzinc sin pintura.</span>
+      </label>
+      <div class="normas" id="normasInfo"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Cliente y documentos</legend>
+      <div class="grid">
+        <div>
+          <label for="cliente" class="req">Cliente</label>
+          <input id="cliente" autocomplete="off" list="clientesList" placeholder="Razón social del cliente">
+          <datalist id="clientesList"></datalist>
+        </div>
+        <div class="grid two">
+          <div>
+            <label for="pedido" class="req">Pedido</label>
+            <input id="pedido" inputmode="numeric" placeholder="2000486715">
+          </div>
+          <div>
+            <label for="factura">Factura</label>
+            <input id="factura" inputmode="numeric" placeholder="003003000285695">
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Producto comercializado</legend>
+      <div id="items"></div>
+      <button type="button" class="link-btn" id="addItem">+ Agregar otra denominación</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Requisitos mecánicos</legend>
+      <div class="grid two">
+        <div><label for="grado">Grado del acero</label><input id="grado" readonly></div>
+        <div id="fluWrap"><label for="fluencia">Límite de fluencia (MPa)</label><input id="fluencia" readonly></div>
+        <div><label for="traccion">Resistencia a la tracción (MPa)</label><input id="traccion" readonly></div>
+        <div><label for="elongacion" id="elongLabel">% Elongación mín.</label><input id="elongacion" readonly></div>
+      </div>
+      <div class="calc" id="calcBox" hidden>
+        <label for="espesor">Espesor de pared e (mm)</label>
+        <input id="espesor" inputmode="decimal" placeholder="Se toma de la denominación">
+        <div class="res" id="calcRes"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Control de trazabilidad</legend>
+      <div class="traz" role="radiogroup" aria-label="Trazabilidad">
+        <div><input type="radio" name="traz" id="trazOk" value="Correcta"><label for="trazOk">Correcta</label></div>
+        <div><input type="radio" name="traz" id="trazBad" value="Incorrecta"><label for="trazBad">Incorrecta</label></div>
+      </div>
+      <div style="margin-top:12px">
+        <label for="origenTraz" class="req">Origen de la trazabilidad</label>
+        <select id="origenTraz">
+          <option value="">— Selecciona —</option>
+          <option>Lasso</option><option>Quito</option><option>CD Austro</option><option>Gye</option>
+        </select>
+      </div>
+      <div id="obsWrap" style="margin-top:12px" hidden>
+        <label for="obsTraz" class="req">Qué falla en la trazabilidad</label>
+        <textarea id="obsTraz" placeholder="Ej.: lote de la etiqueta no coincide con el registro de producción"></textarea>
+      </div>
+      <p class="hint">Uso interno: trazabilidad y origen quedan en el registro y no se imprimen en el certificado del cliente.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Responsable</legend>
+      <label for="usuario" class="req">Tu nombre</label>
+      <input id="usuario" autocomplete="name" placeholder="Nombre de quien emite o edita">
+    </fieldset>
+  </section>
+
+  <section class="panel" id="panel-registros" hidden>
+    <div class="search">
+      <label for="q">Buscar</label>
+      <input id="q" type="search" placeholder="N° certificado, cliente, pedido, factura, lote…">
+      <div class="grid two" style="margin-top:10px">
+        <div>
+          <label for="fTipo">Tipo</label>
+          <select id="fTipo"><option value="">Todos</option></select>
+        </div>
+        <div>
+          <label for="fTraz">Trazabilidad</label>
+          <select id="fTraz"><option value="">Todas</option><option>Correcta</option><option>Incorrecta</option></select>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label for="fOrigen">Origen</label>
+        <select id="fOrigen"><option value="">Todos</option><option>Lasso</option><option>Quito</option><option>CD Austro</option><option>Gye</option></select>
+      </div>
+      <div style="margin-top:10px">
+        <label for="selCert">Certificados creados</label>
+        <select id="selCert"></select>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div id="detalle"></div>
+    <div class="btn-row" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+      <button class="btn yellow" id="btnExport" type="button">Excel de registros</button>
+      <button class="btn ghost" id="btnReload" type="button">Actualizar lista</button>
+    </div>
+    <div class="grafico">
+      <div class="graf-h">
+        <strong>Trazabilidad por origen</strong>
+        <span class="graf-ley"><i class="lg ok"></i>Correcta <i class="lg bad"></i>Incorrecta</span>
+      </div>
+      <div id="grafOrigen"></div>
+      <p class="hint" id="grafNota"></p>
+    </div>
+  </section>
+</main>
+
+<div class="actions" id="actionsNuevo">
+  <div class="actions-in">
+    <button class="btn ghost" id="btnPreview" type="button">Vista previa</button>
+    <button class="btn primary" id="btnGuardar" type="button">Guardar certificado</button>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-bar">
+    <strong id="modalTitle">Certificado</strong>
+    <button class="btn yellow" id="mPrint" type="button">Imprimir</button>
+    <button class="btn ghost" id="mPdf" type="button">PDF</button>
+    <button class="btn ghost" id="mXls" type="button">Excel</button>
+    <button class="btn ghost" id="mEdit" type="button">Editar</button>
+    <button class="btn ghost" id="mClose" type="button" aria-label="Cerrar">Cerrar</button>
+  </div>
+  <div class="modal-body" id="modalBody"></div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<div id="pdfArea"></div>
+<div id="printArea"></div>
+
+<script>
+/* ================= CONFIGURACIÓN ================= */
+const CONFIG = {
+  API_URL: 'https://script.google.com/macros/s/AKfycbybVvwMytiv_Jx9T4z87KpZaQPqTfV3DRPHDTPxKHHeJRom43aqgwoBcR5ZqskP0Eo1ig/exec',   
+  CIUDAD: 'Guayaquil',
+  FIRMANTE: 'Ing. Jenniffer Pulgar Tapia',
+  CARGO: ['SUPERVISOR DE CALIDAD', 'PLANTA GUAYAQUIL', 'NOVACERO S.A.']
+};
+const LOGO = 'data:image/png;base64,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';
+const FIRMA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOYAAAB6CAYAAACrzi+DAAAi9ElEQVR42u1de5yWY97/zuyobG9Gh3fMjuRNStu2Q8WOqMwmhbZySNtG1CbnTYR0QIhE2aKDLYdo5ZySDojtgHiVWlrEpg2F+XRA26ZU8/7x+17vfT333Ofnfg7zzPX7fJ7PNfM89/G6rt/5lNeo5c0wYMBAdkG+mYIaCRcDeBhAPTMV2QkFZgpqHLQH8Dj/bsuPAcMxDWQY3gYwDcA5ANoAGGKmxCCmgczCoxzvBDAfwDUAJgNobKbGIKaBzEFvAI8A+Ib/z+T4vJkag5gGMgNXQ4w9hdp3+wCMA1AG4AYzRQYxDaQfTuK4zvb9SI4DzRQZxDSQfmjFca3Db/35u9E1DWIaSDM057jK4benOa4w02QQ00B64XAAPwHY6fDbfgALATQFUGymyiCmgfTCIx6/Pcaxi5kmg5gG0gfvAnjB4/fPOBojkEFMA2mCugA+BbDU45iNHI8z02UQ00D61nm7zzG7iZxHmukyiGkgPVAQcK0/NVNlENNAemFtgGNWmWkyiGkgfdAGVnysF0wBcNBMl0FMA+mBrgC+D3BcPe6JE8yUGcQ0kHpoBWBXgOOUgaiRmTKDmAZSD0UAvgxw3G6OprKFQUwDKYbzAZQGFGULNETOBShEYpqbQUwDWQMDARwa8Nj9trG6wysAvgNwt0HM7IPTAJTUYMQMG5R+EEBFDrx3ASQBfDOAwQYxswd6AagEsAzAFtTMrIl8WHmYYc7JhX0xg+NjqIbGrFxGzHm2/8+soYhZO+Q5OwLqo9kuJQ0EcCnEBfSNQczMQwk5JbggeQCuBXBJDUTMRlzjPSHOqQegTjV+52aUkmZD0tyOpjhrEDPDME37+3iOKwCUQ7IsahIo3frVEOf8jJ/qCjcQMS/m/+XVcZ/nImK253gsqhoxalpLAKVXbwq5J/ZU0/ctIjH+Hf+vS6lhhUHMzEJbLk5PWPmFANBAE21rEqgUrrABA9XVKjsWwAhYgRJ9Oc6qbi+SaxEeYzkusH1fEw0/AFCf47aQ58Wlk7Um9y2C+BM/TuG7NoEYfS7TvuvI8RODmJmFowEMc/i+H/WOmgZKV1wf8rxkAgwKIf1QBnI98iG+USWdfURxM+4ghtEOBPkSirH7DWJmDoZwAzzgoGcdCeCPNRAx26dZNL0cwENUGfqjaimTEyB5od8CaBjjfVsDGEC7gt2ecFp1XLhc0jHrQELP7NTxYY41sWaqMv4EzbFsFvE+XQEcIFKWA/gFnOsLrQPQnTr/1zG+52BIH5YvtO+qdbRXLiHmsQ7iaj1uhC0AfqyBiKmKPAcNGCiPcI9zITGpb1N0Xu5z/CJIClqxpgMmC31QtTTnGFh9QA1iZpAzDAYw0fb9DxxzqTlrPUgZygMA/gUxqHR1OfZwji9Bgi42AHjOh/NtDPEsMwDMhXQR6xiCM0/TpJhZAF4G8A6f79981u3kgJX8HND+/pG/r+T/xZCWggMgbR4aQyyyT1fXRc4VHVNRXt3qdyXHY5AbQdkKngPQDcCzFA0vJ8caA+B2l3OaArgQUmyrtce1OwF4M+Bz3EBiuADe9WoLKLWMhVhmW9ukl0sgxqk95LgfaP83pxS0GuKLbQ4JMdxDYnu0dp2BqFoT9zxeb2t1W+S8Ri1vzoXNuoQL9ltNv9gCCcu6OIeQcgOAFpDWeSO17/9G5LtU0+0awnKTlNtEzD9DWiLY9cBKSh1BWvL9gxv+DJffG/JanYlUh0Ac/l+TE6qMjwUAJgH4O/xLbDpJfAcA3EgdszaAixwkJwVbSLweh7QgNKJsiqEDxSlwI2wBMCfHkHIGjSb/ZUNKkCD1hLiFFOi+u5W24xcCeI3IrECFKwaJEnqd3Oo8/l8fwPUkEF8QWeZy898J4C4Ap0DcJGdCfI3dtPu9EQEpASuAYAr16ApySKVj5vHTiPtjFedxL4nQaxTfs05yzAWOWUJd5ViNUz4N4A85hJSK+53OTewGZdx0PQDcoa+ziyg6RRMr1T2600DjBvcAGE7C9zyAoRSBFZwB74rvdg69A9FdJ6tJXBraCNhgAIfBvc7RLyEtI/QQzWMQLnTRcEwfOBXAYir8ayga5RJSqs0GH6QEkfIhIqXiHG6bc4JN12vnoKfboQeREuTOY0kET9K409KQ79YgiXlpB6vnioLBnCev4mMfE3E7cO8AwOeUBI4ziBkPXEgDyGaIyb5njiHluRQZZwY4dh25ppoXUHcLAsqya/cv9oNYTSsh1l1QhzsEwK8ATCfnigLJVH6/iONom/QEAGcFvMZbAM4mQekOoBZVgM+16xvEjAi9uEnGQgpP5RqoejUjAhx7AcdxsKriBU3h6sHxR+6L64mMT3LTKjGvP8XgOMLckknIvsNBJx4CCfmLYthZBLHuH0XxeDYkQskgZkhoonGDawDcloNIWR9AS4gLI4hxRCWDj4RVTuOngPdShqCpNN5MpL7ekxxFBYfH6RssSWIfFkPKhuh+1+EArkvymb6iaP48JPj+20wQ/OroxyyGmP5baN9NDXmNuhB/WglFtXyIlbERxOReH+FLctjhI4ivcRsNDesicBnVbyRIhExXcrZrbN9/5nNeWwD3UepQYmALh/Oegrhj4gwI3w6JY66FcJFZBZDwSz3aZyjHV2N4rtWa9PEEkVQRvicMx3SGv1FUuQ8SaRIkBrYWgJsgfsBKSHTJO7CiVlQ43zBO/rGaMcPr0wDiBugD8cWtoQEGkCJYYyCWz/fIuf5Do0uQ0h1lJBYPBJwXFRM8naMqWfm8j5i8BuJiAoBfQ6yTdqSsQ6L1Zsxr+ZomPoeBkzjqgQN/RriopaBwMcRFtQri//wYYtU1HFMTtW6hXjKMSvqN2kbUoZBiTTm5XxG55KvUj9bwOruTfKadsDpkPecyv2V8jtYQ83wfAFdBfG6fUVf6yEFUVU7++QHXsTY3zkGbmOgkLTyl6ZTT+Dy74Z4etozjhpjX9BtINFBYuB5idVb65eUcB6Vo7+0mAb6buv5rAE6m2FtjOWZriLX1nxQHT4ZY01pRTJzHzf8gRdxKLnZbUvhJFM3qUF9aQEq7Ow3Pvp/PehfEhfM76sY/B/AbLvBCvsdOEpmuALqQk2+Dv4sEkFC1IgD3a98p94dKei6FBBr8m0TudFiFysDncNNzyyB+y7jh6IjI3ptGKQUPUTJYnuL1HAmJP25A49o9NZVjnshJf4sUS4cuJCwrKNpshJj651Aczfbk2AoA9/KTD+BDAFfwo4jGlIDXuoQI+IH2XTNNxxwMyxc6E4lZ/mU+iFnOcXYK5qCI6xsG7FUqGnP8U5rW7XsS1gOUyipsBDGnEbMzKeIebiLdad2QIsut/P8guVEFRa7q2N/xIMQnWEgkm8zvR0DM98Pg7VooR9XynKpnh7LKPkLjjZu+9oYH0uvibNzE6bmQ5ygRXAVCjKFqku56Tr+AWGwncm7ez3XE7KeJKXbr4G2QaI1S/v8pFfFcabb6PY09pSQ+GzgOIkc7x0ESaEzOs9ymouhhchd6iKK9OH7l8fsCxJ/P2iyCnl/AuVFIWMy56ZQhiacF9+AaOIc95pSOOcL2d2NYeXljaEBRPrrjkJsdkM+lFHA89bDZEFfIDzRA6AT1DgDjbYaRA7A6djXy0Q/L4Z6NoeDWmN+vlDaAxSHP68PxHI5PcVyZoXX6DGLJBsRTUJjLiHkG9aA1mm5zFMQNcQmNPwuRu6Uou9C4oBz5X0BM9nkURYfQgDOLYl13AC9CrLAfE8lUnOhGeAcmNOF4l8vvp3JcF/M73sL3eivkebdBrOBrqZuXwwo9zBSsJ6HYieQC8rMeMb+hXnkixZ1ycoQ6sJy7PRA8BrS6wWtwd1vMgfjU/kQi9RI54yBIlE5LiOX5MB7v16y2jJtppweRiNs3WAti2Xw3wrktIMa+fdS7dyA11uKwMJ/ImQ/LN5tziAlIpEslxdbTAei5aUpEG5eDSKksqX6i5UybsUfF096IxBKO7/lc5w54W347wztAIQoMiYiUyi97M0XhfGRXBbxVFLXbIIZ+nNlm/CnVOGEbFxFKhactz0HEVDpTkLCyIhf9/DHtNy8RtJAc1svU3wkSMRUXtKX0UzciQs/l309C/NPrs2z9niNxvA/iUbgz6oWyLVFadek6Au51ep6AZDjk5SBiVlK3PjHEXG2EhBA+CqvmzW5u/v4A/upy/sMUgfN87pEX8/tF1cMqIa6dppAY5MORve0Cv4ZYjCPPXbaIsmdD4kgX8GW8imd1QNXSGrkAKv5yWIBjVQjaHlgdzf4IMZJt0jiSV4v3QT6ibiHibV+nqiJE4cCFmmj9LIlRNvfwVIWnP6zOiHkLxMo6B8GSnBvnqH45g9zET0QfComW+QkSgaL7Ab+CBKG/ol3zdQfRUbmkrvK4T0vEZ43tBclauQJV67+GEfGVW+j4LF9LFVvbGsCo6ijKNoc4aLfACq3ygjoQX16tHBVj/dKKmmhcrNwDiZ+EBGo8Datg1SGwghOUGOwlavWF+Ilvj+nd1iJafd86SGwLOBCZ797Vhe+zPcB7+81zVnLMT0hdjg14/CmI36eWLijix8kJrdKuXvC5xjztby/OqqyVF/KzGRLY30vTX6/xuddxkKyXZKCOtjmjWlDLtL/fyyBSdoQEMrxPhhIkcf0YbS6rBWLW4YvlQ/xyQcO92lPHqC5Ql7rcO5DsmG+JIHbjzhJ+7xWe1hZiqQb8I2ZUX8yDVBH+B+KCmafplV7J5fVpZEmmbV59jdOdAe/iWF6gRx39Ps3rl09CUMm5u4zrMD3g+Zs4/49VF8ScC4luuSzked0RPlokU1BC3ehccsk22vseZjP6HAL/kh26Pjje574KKXW4TUNswLtchmqf988k3v9ZTcpZmsR1lDTxNNJfXvI7qhdzIZbkKITqAVhd17IeMc+CJOjODHleU1jlNrIVroREpnxO5LgCEkY4m8aYCiRmctyobTwvGBRQjFUdvt7w+A2QwIGXXK5RAIkGihq4/iD1sDGwEsmThUvSuIZtYQW4DEdyNX9UMMUJ2Y6Yi6jzXB3yvPbcWD8GeKebIPGk3yKxqG86YD25+m7qdF+S8u6FOOyPsB0/EP5Jvpdrfx/uc3+VaWHXD+tRBF5PY0QHSFL2fxx0oJ8heiL5IuqvE2MwHN2tvZO98l1ziJvtckRvH+gEo2DFaZ8MiclNFnZASoBmLWLmk1tGcXdcCf/mQAXU58ZrBpdP0/yOKyGRHw1sYuhvUTULQhmCrvW5puKq8+Hvv2vsooeqUiUqMfktiJX3UIgRrrl2bAW8S368DOcyHoO4vjMRrP8JfDj/CG1O7TaKf8BqdxAknrdJgGPuhSRiryXxejemPfGspvdnJWLO4vhihHP7wD+GdCh1rJY0Kn1nE9/SKRWonhmHeBgLzuWm2upjQFIcYVkIncx+TVVBfbUNAY+g7vYpN2UtbvwWPhzAzpEnQKKJ5kawHbjNIVC1ANj5fN5JFDln+VxnBMXSzUjs1WKHqRoBPDvm/fBECOKQdsRsCAkR+w7h2+I1hhSbWuKzge/jwm3QxD57dMuJkD6K6YDt8C5xMlFDGDfQ2+ZNCnBPZeDZrG2GHzh/4x3mowJi1r+QYtxeiA+zF5xjqYdAHPyrbFLKMBKOmyAZFqcmMW8va++hi5J/o9iv7lMP7tZlZVEtoPSS52E86kWp5iNIZYK4UwqVaNwiGxGzg41rKgiiH6ig7E98KOO7mviR7yIm7kfwEvqphAHcMH5csL2GQHYDixe32E89fjM38EOQzAy3xPI55PB7IS6KdQ5EpQ7nWS8Zuhjia1xMcX0UDT8PRpyXzhDru3KvfK0hTzmJmepNM4MI1doFufdDAsl3+txzHsS18yukJs93H9evaTYiprJKPcYF7kruFUQ/6K69oJs+MgqJpR6VzmS3Cm6FVNhTYWrXQ6qdNfExQADiJP8XRaNSl+PfR7C+FyMgYXV+jmrlYB+tzeP/0sByiccavozElK5ZAZ5pOyyneBdY9XUU9CaSP06R93UeN1oT/1QNIbsuXB/ifqmEexB7XSLJMlgB+UoknwxJ6L5BW/PO2rV1XbqSa3xNgHdW9XhTTaw3ZytidtH0qoOQ1KagzWjGUAz2UtoVBVUwHs6ulQrqSLdQ9lfipNOxTWGVNynmhlFdjJ16b55PEcyvQl8pxRqvlCtVFLqvJg7dxOdUCdALNQ7YD1aUDchdNmp6mpch425Y1uutkEisvRB3ik6A/sy5A3/vCCmTeZeNSH7kQHBXaNKRE8LUh1jSCyC9M/tqz/Mo532cgy4NTd+dSnWmDySoohv3mG5nKKE+/D5F40EQ112q0wh3IYTLJJ2IqSj/7Qjf9CUf7ulL+iLt1+7VC1ZtGDscRWTsT92oJcXK1i76XSmkti0o5l0H50Bq1TjWzyd5qiY9OImuo1DVLVQBcWO0hLg8tmgiXWMSJ71PyUyNM10QQCLpqv2/kbrWRkh+bENys0aUQN6D+ElrIbE6XCGfrRUSrbpNOJdKonEiEu9w7Mn9cZAGqSJyz2HcBzeQ857A951NTj+VYm0nWJX35pFwNNWQcguv1YbEay/Cu+6iwF4kBnhkFDHrkKr2oHVyW4RrlASQ+4/kMd9zc6hF/sLleF2kuF8zFrk14BnIc6ZQZzkBie4FnSoGsZwO5/NucBCresDKwBiq/fY479uMxGGkpoctpo6ouOdSWkcPp47tN3/vkhvqXGgnN/U2fpQorKzjpztc51BYdWgX2ewL/TVktVt0O1KCuAJWlFBTzk+xJkbPpgGnHZHrEBrEVhIpx8NyrZygSVtrKaltIeE4S9OTz0kTYzoLIQoTpKqCgWrjVkzqtYCb/rMI1+rNyQ3y4oDlpwuiMxxh42D2yuC7tWd4HFZRYWXssEN/TcfygqMh8aOK8NzCudHrvtYisuhSwSqKrw/AMsFfRESugNUIaRz1vzsQrPfJZRTZX9cQpzk55iZYrdL9MkTyNQKlG+paUZUp4174wiZlPIrExGflIjoIK7iiPXXqjyi95BMZp3HOG9n09cmQAtjT+exdKG1sgLiFVCDGkjRKjY0yyTELATzDF79ZE1s2IJpP8Uy4VwlX77AbVtZJX26KJR7PB4jPqsI2YXZC9aRmDR6gfd/SQT8ewmfxK/yrsiyWkTu+xGe938Uaa/9uDBItzZ0oEustA17XEDQojKOovIKIVEH9bimsYImgxou1SPSjHtBUGd1W8AKlhJ42Y9Fuct8yzmk7TWr4iM+nH1NkQ8oBnJc3Obdr+N2GDKhwkRhg3ByzlNSojJO936a39CLFDVO1ugO8m7fU1d5DJaXa2yno91S61ASbKAUkRpjU1wjJZbbvgaoV6CYjWIMctTGfImfpD+fgaCcp4QwkBoSXkVs6JeM+gvCxrgfhnp5VQQS4B4nF0XTYox2rQ22NE5dxDTqRo7VzeP/zYVVfuJrP1YHErx256XyK1EttSNkXVuRXK+rXuiHKTQ1JJaj7PZsJxJwBq86pE+LNJWK2DIGYt8Bqa+dl7doAqxbQEUj0W5UgMb50GqoGeB+vXcturLIjbG+N0EDbPIB32YyGFMUGcUON9kCcMzVdTdcxl9osqXtpTHvHduwyOLdDiAo9KNLOp378CZzdL6XaHJ1LwnY3538mbQ7XU5yd5EJwp/J+13IeTuX8v8WPqtTfj4h+loOFeSEJm5ONoZ12zqVpQszhYSWYuCoYjOCEnAL3bIK6EHP4K5zwIPAVJHzPr2HMj6TK45BYD6gtEfFkjdvtoJHhLzbE64DETHPVcu15m1VTfV9bsy7/nWJeOxc9+gaIGf//593D0DVXIwo30shRTG70c34/llzpAUg61xgHDrUvxo01ndzyfEgdm9Yu7/A2JMqom+37PyBYJ+q3Ka57Zfy/r1k3r4EV+dORhG+Px34poAGoyGcd4obQlQzikLXHcrN2g3eKz26ImT1oMG9zHuu3oO01UWmSbRHG2/QxZZD4wHaNL1C1Fo0KoLbnPio/nr7xj+OmsgcddKboNxRWHR6nmjdtKc5t0ZByJMXtMZrFcx8keLtAM+ocZbvWxJiRsoBES3Fr1RKgl4PunE+i24Iccgz11iBIuYRr2d3jmBIi5Uwa324lUa2E5Sf1IuJdNaTsnyakVIbFYWEnPRl4kFSrE4L1j7gT7jmAdlAL75UY3ZEL8gGRYgTEx1hIfa8nEn1mRQ6IWUSRaI6LzmU38qxDYhFk1TT2WJvBoykJ1puQvpgg8XrcgTiu0XSQmZBYU3UPXXydRO61SVt0e1rbvTFvrC7kkHrFvEspks7XxPRlsKKTPkO4QPaOXAc/jqLUiIdIqN7U1nRKAMmqhXbsX9OEmEM53p8uxPwlkbJdCJ1xAZFgKPwDsssphnpx1MW8Zk9YxaLVRDyGxKrkymizBYm5hm2JGE4Bzk49IXcgsdhyPe17XWLYSxFukyZZwIGAqXb1N/P8QdrmVrrsJ9TNJ2iGlVrkwnUdjDRxwkkOxOwRWlObUNp4xUFiCQqtqTMGCfC+CBJ08L4mGp5GaSPIe08joV6VJqRsT2JyVxQxJSp7fhOSkRC2L+B53Ghfwr34VGsi3u8cfhtAXaIuxNm9SNs4XhR3p4u43RvOZRzdrlXbxj120nhkF4+3OlgaT3G5pm4JfRhVfaTnkaAN0Djifgek3JyCzXUnqb09cXo0CdpCEuco+toEingj4W9BrkUiYddfw4TS7UsjUnaB1cdkdNiToxh/lBEnGeX5K4jvsIWL5ewC6hIjIT7RF6nUz+PvP3GTr45hAp+Ac9xrnFCP3PyYABT2bTiXpnyNi63KUB6Hqtk2duNXKqEhrEiu3vCv8GeHZ0hYr0WwIAjFDA5Hdhd7Bo11KivmHCQmV6TM+HN7VCpg43q1Nd3KruBfAatPxSqIz28eF+Z0Us/VMU1iURoW6iR4p6wpuNiDC6jNO5nr9pRNHAbiy7gPAtvJxXdEQMoBRMphAZESEP/kmGqAlPU0pBwXBSmjcMxa1J3eA/CbGKx9eyFhZ3oZiispup2B3IF/0hjyhs9xlRC3ips/9GVYVstvIP64deTGpS4idSpBlbisE/Kcz4mU94ckBC0QrJ5rpkAvyH1SMswjLMe8guPJMbzEfkgZx2EQlwIgOX3DEFOPwSyCggBIqYxTXkEKU2xrsY5/l6bI8OMHm2hjqB/inEXk7GGQchAk+CObkbKLhpR5yUp0YY0/V9pEp2RhN8Q9MJxEohHFgL/kEFIOgZXD6QXdfYw3hTaj0DxUDdHLRJftT2kPeCPAsSdArMt5IffoBFipXNkI98CK7vl1HBfMD3lsS1i+pLjgMrL9GyHpVXdWAz0iDExAsBjJUR4E6V6IX3YaN3UDzSD0Of/OVGflNxCsyNQQSHD7VSGvP5gGnzuycG0HUP0YDnEdHoqYenaG4ZgqEuaFFLzgahp7zoNYJl/NEaQsgVhRFwc4riWqVgGsB/G71uNvShffSQTdByvj4/EMveN7sFKovGAyxJA3PeT1J3IOvsqytd2uEcjYQ/vCcMyBKXzJYm7MVyCWt6dyBDHVnC0IwE2+Q2Io3QRI3OkaiGvIqU5rLVgZHd0z9I5b4d+XROnN5RGufyjSU2HAr8t1AXXdJeSSDSDRWcek4mHCIGYzJFZHiwsaQ6yW90HiLE+BZBe8jegdorIFBlOH9jNaDKcY2xTijvoPpLRHHqTynJdTfI6G3H9H+lsUHvTZ1A0h8cbtED6G925IIMr8NLzHWHLlUWQMsyAB+zuJiD9RpdhKIpgH8benpJ9KWOPP0hQ8wwyKerP4/ypIseYfIPGXj0G6JVdHOBr+MaMdtWM/p9gWpt1gK449KS7uRXCnfRzgl5anKuG/H+HaI5C+gInryCDaILEA2qvU7d+Cf5G1tHNMlTC8Meb7/xLi4B/g8NthEAtXCSnWWFSvhrWnwd99UQKrRpDKrGiMcD1At3HzL4Bkgewigr6D9GTq53sYPAZR5IuCXH01HTNdMBUSoJ/Hz4mQ1n/L04mUYRBTtXaL2082m5TKrYHNeoq3o2FVCX8Hzn0zsg1uRGJvR10lGALx533INWgDKbe4KMJ92sMKKthKgtYHkj52ABFbjYeAa1C1uruChyGZIFF61TxFHW4faiAERUxlfdoT473PJRUKki52FylYK264h5FokcxG6IxEa+xYiC9uFnVPQOJ01yK5LtkVDpv3OVilOcZS4qifgndUCeC1PTjelRGvC0TLVqlRiFk3ok7qBm2pW44Ped7H5AjDaRD4nJvubUhKUN0smVfVRetCGgxWQoKwD/L/npAopz0x6O21XTjWjyRmqnbtDj7HBTG9YwmR8icXiWdWEnrufbDaGdZICIpoKgD7qJiIwWxIoEKU6te7UDUZeChFx9nkICsgQQqvQPIa16Vg7upR5/0FxdNm1Jf7afNUDAkuGO0ikqk2EclAM3gXAfsjP2dCfMUq2OFpEsaoc6OMOk7uguUkGNdGuK4K5G+DGgxBOabKLWwZwz3vIJeIsyT9JEgAdx4NKBXUQ5+lqFjJzzMQK2iYoOuG1OMG8fx51HO30PDyIb/rRx1YiV/X8vOWC1KeBqssYzpgCaRmUE8St76cm5cjXOsFcuAjUNXx3wQScBA102UaDT77azJiBuWYyoFcmuT9elDnaJjCd1rNz9XkWK2IBINoFOnjce4Ovut+ipl7qV9vI7IXQ+JR34QElK+nePqBzRgDWFn9bjCayB0H7Apx7AKqA+fTONWdROtLctBFcPfNlUGygdpDEpadjIHjNaNQFENWXQSrEZTTECbtqyOkXk8UI0IhqeDF1C/X5/CczqM++d8++tkWVA1CjwKVRK5FSVxjMCTAXI9j3UaE30GuWEqR+X6418tRaYFRErYbkzh8Q/WgRkMYY85KGlw6IpglVYnKz5EKdiKn3JXjc3o2/ItCdaHBJK6AjZ8lef5MjldrnGsEJLlgPcTXeh78s4pUR7cofst+mlRV4yFsonQTihm94d2evIRcQ5VS/IEGiHU1YE4r4R/U/A+Ksi/GdL/zYrpWsvAxJNvk6ojvsRFSbbDGQ1j3xxec+JchMZ1ryBVbQ2rAdoWVFrYYkvT8Lty7buUaXAT/bl/FEEtqnIiULW6ilnDuAuYHqm1FC4OS0RBTGS2aUJdaCwlj+om6ZzOI725ODZ3PLvDPN+yVAu5WmCUi/A4fScoNJkKMaQcNSkYTZQ14w9eUHLw22IeQeMy4Cmf51QlKFzzD8fchz7sA4tY6MiJSG45pwBMGU5f2Qsoyiv1xVrPLFmPaWfB2RbmJ4CrgwSClBvlmCmKDUfD3vw2FVZYzLtiRBetYj5+VIc+bwXG82T6GY6YCToXkU3r1DWkLcTU1jvneGxGs2FcqoTOfY3eIc8ZCXCTdkDulZAzHzDLoAvH3eW3MW5GaKnbLIHmYmYQyJDZa8oPbKWF8YJDSIGYqoQ+s8oVu0BURmssEgPWwEtkzBa0QvFtyU1h5qp3N1jGImSpoSjHOKySuI6T5TiqCADZn+P0LIS6gIM8xFJKqtx4ShLHdbB+DmKmCK1HVoNPM9r8qypUK2Jgla7nT5/cbIAHwWxBTUWSDmAbcQHVb1vWkurC6TgNSqaEohbrU95Asj/oZmgNVnLuXxzETIL7W5yElVAwYxEwpXAWpnqD74E5EYp7lQKS+RMZaWNXyMgVOOnY/SMvG6yCheheghudZhqH4BsIRMhVAUMSNZi/VcRSstKizIa6U3il+rleR2aJVSyGW6eUQX+YrkEAK1RG8G4L1NjFgEDMSlMEqvjwIwAZUdYF00hCzOySQP9VIc3+G5+UySHHmvtSvlfg+DFJzaKfZOgYxUwlF2rgZzmUZF0Kq+O3i34tqwLxsAvAHSAKDCUQ3iJl2aEuO8C7cM2jegLhHpiP+AtnZDgYpDWJmBLZDzP1eZRV3wbkBkAEDBjFTBA+YKTCQDjDuEgMGDGIaMGAgCPwfqb7MnZbXDbIAAAAASUVORK5CYII=';
+
+/* ================= NORMAS ================= */
+const N = {
+  A653: 'NORMA TÉCNICA INTERNACIONAL ASTM A 653: STANDARD SPECIFICATION FOR STEEL SHEET, ZINC-COATED (GALVANIZED) OR ZINC-IRON ALLOY-COATED (GALVANNEALED) BY THE HOT-DIP PROCESS',
+  A792: 'NORMA TÉCNICA INTERNACIONAL ASTM A 792: STANDARD SPECIFICATION FOR STEEL SHEET, 55% ALUMINUM-ZINC ALLOY-COATED BY THE HOT-DIP PROCESS',
+  A755: 'NORMA TÉCNICA INTERNACIONAL ASTM A 755: STANDARD SPECIFICATION FOR STEEL SHEET, METALLIC COATED BY THE HOT-DIP PROCESS AND PREPAINTED BY THE COIL-COATING PROCESS FOR EXTERIOR EXPOSED BUILDING PRODUCTS',
+  INEN2415: 'NORMA TÉCNICA NACIONAL NTE INEN 2415: TUBOS DE ACERO AL CARBONO SOLDADOS PARA APLICACIONES ESTRUCTURALES Y USOS GENERALES. REQUISITOS.',
+  A500: 'NORMA TÉCNICA INTERNACIONAL ASTM A500: ESPECIFICACIÓN NORMALIZADA PARA TUBOS ESTRUCTURALES DE ACERO AL CARBONO CONFORMADOS EN FRÍO, ELECTROSOLDADOS Y SIN COSTURA, DE FORMA CIRCULAR Y NO CIRCULAR.',
+  INTERNA: 'NORMA INTERNA'
+};
+
+/* Requisitos de tracción NTE INEN 2415 / ASTM A500 (tabla por forma).
+   elong = % mínimo en 50 mm para e >= eLim; para e < eLim se aplica f(e) redondeado.
+   Grado C con e < 3,05 mm: la norma lo deja por acuerdo con el fabricante (se certifica el valor de tabla). */
+const NORMA_TUBOS = {
+  A: { fluencia: { circular: '230', cuadrado: '270' }, traccion: '310', elong: 25, eLim: 3.05, f: e => 2.2 * e + 17.5, fTxt: '2,2·e + 17,5' },
+  B: { fluencia: { circular: '290', cuadrado: '315' }, traccion: '400', elong: 23, eLim: 4.57, f: e => 2.4 * e + 12,   fTxt: '2,4·e + 12' },
+  C: { fluencia: { circular: '315', cuadrado: '345' }, traccion: '425', elong: 21, eLim: 3.05, f: null }
+};
+
+const P_TUBO = 'TUBO ESTRUCTURAL DE ACERO AL CARBONO, en sus distintas dimensiones y espesores, en negro o galvanizado.';
+const P_PANEL = 'PANELES PARA CUBIERTAS';
+const P_LOSA = 'PLACA COLABORANTE DE ACERO';
+
+const TIPOS = {
+  tuboCirc:    { nombre: 'Tubo SS circular (grado A)', normas: [N.INEN2415, N.A500], producto: P_TUBO, base: '50mm', tubo: { grado: 'A', forma: 'circular' } },
+  tuboCuad:    { nombre: 'Tubo SS cuadrado / rectangular (grado A)', normas: [N.INEN2415, N.A500], producto: P_TUBO, base: '50mm', tubo: { grado: 'A', forma: 'cuadrado' } },
+  tuboBC:      { nombre: 'Tubo SS grado B / C', normas: [N.INEN2415, N.A500], producto: P_TUBO, base: '50mm', tubo: { grado: null, forma: null } },
+  tuboAC:      { nombre: 'Tubo uso general AC', normas: [N.INEN2415], producto: P_TUBO, grado: 'AC', fluencia: '-', traccion: '290', elong: '≥ 35', base: '50mm' },
+  tuboISO:     { nombre: 'Tubo ISO (conducción de fluidos)', normas: ['NTE INEN 2470: TUBOS DE ACERO AL CARBONO NEGROS Y GALVANIZADOS, CON Y SIN COSTURA PARA CONDUCCIÓN DE FLUIDOS.'], producto: 'TUBOS DE ACERO AL CARBONO PARA CONDUCCIÓN DE FLUIDOS, EN NEGRO O GALVANIZADO', grado: 'Serie L2', fluencia: null, traccion: '320 - 520', elong: '15', base: '50mm' },
+  perfiles:    { nombre: 'Perfiles abiertos', normas: ['NORMA TÉCNICA NACIONAL NTE INEN 1623: PERFILES ABIERTOS DE ACERO CONFORMADOS EN FRÍO PARA USO ESTRUCTURAL. REQUISITOS E INSPECCIÓN'], producto: 'PERFILES ABIERTOS DE ACERO CONFORMADOS EN FRÍO PARA APLICACIONES ESTRUCTURALES', grado: '250 tipo 1', fluencia: '250', traccion: '365', elong: '21', base: '50mm' },
+  novalosa076: { nombre: 'Novalosa 0,76 mm', normas: ['NTE INEN 2397: PLACA COLABORANTE DE ACERO. REQUISITOS', N.A653], producto: P_LOSA, grado: '255', fluencia: '255', traccion: '360', elong: '18', base: '50mm' },
+  novalosa065: { nombre: 'Novalosa 0,65 mm', normas: [N.INTERNA, N.A653], producto: P_LOSA, grado: '230', fluencia: '230', traccion: '310', elong: '20', base: '80mm' },
+  ar2000:      { nombre: 'Paneles AR2000, DRT plus, DRT1000, Sinusoidal', normas: ['NORMA TÉCNICA NACIONAL NTE INEN 2221: PANELES DE ACERO', N.A792, N.A755], producto: P_PANEL, grado: '230', fluencia: '230', traccion: '310', elong: '20', base: '50mm', opcionA755: true },
+  durateja:    { nombre: 'Paneles Durateja', normas: [N.INTERNA, N.A792, N.A755], producto: P_PANEL, grado: '230', fluencia: '230', traccion: '310', elong: '20', base: '50mm' },
+  novazinc:    { nombre: 'Paneles Novazinc', normas: [N.INTERNA, N.A653], producto: 'PANELES PARA CUBIERTAS NOVAZINC', grado: '550', fluencia: '550', traccion: '570', elong: '---', base: '80mm' }
+};
+
+/* ================= UTILIDADES ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const hoyISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const fechaTexto = iso => { const [y,m,d] = String(iso).split('-'); return y && m ? `${CONFIG.CIUDAD}, ${parseInt(d,10)} de ${MESES[parseInt(m,10)-1]} del ${y}` : ''; };
+const ls = { get(k,d){ try{ const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+function toast(msg, ms = 2800){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(t._h); t._h = setTimeout(() => t.hidden = true, ms); }
+const numES = n => String(n).replace('.', ',');
+const parseNum = s => { const v = parseFloat(String(s).replace(',', '.')); return isFinite(v) ? v : null; };
+function espesorDe(den){
+  const m = String(den).replace(/\s*mm\s*$/i,'').match(/(\d+(?:[.,]\d+)?)\s*X\s*\d+(?:[.,]\d+)?\s*$/i);
+  return m ? parseNum(m[1]) : null;
+}
+function formaDe(den){
+  const s = String(den).toUpperCase();
+  if (/REDOND|CIRCUL/.test(s)) return 'circular';
+  if (/CUADR|RECTANG/.test(s)) return 'cuadrado';
+  return null;
+}
+function descargar(blob, nombre){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nombre;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+
+/* ================= API ================= */
+async function api(action, payload = {}){
+  if (!CONFIG.API_URL) return demoApi(action, payload);
+  let res;
+  if (action === 'list') res = await fetch(CONFIG.API_URL + '?action=list');
+  else res = await fetch(CONFIG.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, ...payload }) });
+  const j = await res.json();
+  if (!j.ok) throw new Error(j.error || 'Error del servidor');
+  return j.data;
+}
+function demoApi(action, { data, usuario } = {}){
+  const db = ls.get('cc_demo', []);
+  const now = new Date().toISOString().replace('T',' ').slice(0,19);
+  const itemsTexto = it => (it||[]).map(i => `${i.den} | Lote ${i.lote}`).join('\n');
+  if (action === 'list') return Promise.resolve(db);
+  if (action === 'create'){
+    const pref = `CC-${data.fecha.slice(0,4)}-`;
+    const max = db.filter(r => r.numero.startsWith(pref)).reduce((a,r) => Math.max(a, parseInt(r.numero.slice(pref.length),10)), 0);
+    const rec = { ...data, id: 'demo-' + Date.now(), numero: pref + String(max+1).padStart(4,'0'), itemsTexto: itemsTexto(data.items), creado: now, modificado: '', modificadoPor: '' };
+    db.push(rec); ls.set('cc_demo', db); return Promise.resolve(rec);
+  }
+  if (action === 'update'){
+    const i = db.findIndex(r => r.id === data.id);
+    if (i < 0) return Promise.reject(new Error('No se encontró el certificado'));
+    db[i] = { ...db[i], ...data, id: db[i].id, numero: db[i].numero, creado: db[i].creado, emitidoPor: db[i].emitidoPor, itemsTexto: itemsTexto(data.items), modificado: now, modificadoPor: usuario };
+    ls.set('cc_demo', db); return Promise.resolve(db[i]);
+  }
+}
+
+/* ================= ESTADO ================= */
+let registros = [];
+let editId = null;
+
+/* ================= FORMULARIO ================= */
+function initTipos(){
+  const opts = Object.entries(TIPOS).map(([k,t]) => `<option value="${k}">${esc(t.nombre)}</option>`).join('');
+  $('#tipo').innerHTML = opts;
+  $('#fTipo').innerHTML = '<option value="">Todos</option>' + opts;
+}
+
+function opcionesActuales(){
+  const t = TIPOS[$('#tipo').value];
+  const o = {};
+  if (t.opcionA755) o.a755 = $('#optA755').checked;
+  if (t.tubo){ o.grado = t.tubo.grado || $('#optGrado').value; o.forma = t.tubo.forma || $('#optForma').value; }
+  return o;
+}
+function normasDe(tipo, o){
+  const t = TIPOS[tipo];
+  return t.opcionA755 && o.a755 === false ? t.normas.filter(n => n !== N.A755) : t.normas.slice();
+}
+function nombreTipo(tipo, o){
+  const t = TIPOS[tipo];
+  if (tipo === 'tuboBC') return `Tubo SS grado ${o.grado} ${o.forma === 'circular' ? 'circular' : 'cuadrado / rectangular'}`;
+  if (t.opcionA755) return `${t.nombre}${o.a755 === false ? ' (aluzinc)' : ' (prepintado)'}`;
+  return t.nombre;
+}
+
+function aplicarTipo(){
+  const tipo = $('#tipo').value, t = TIPOS[tipo];
+  $('#optTuboWrap').hidden = tipo !== 'tuboBC';
+  $('#optA755Wrap').hidden = !t.opcionA755;
+  $('#calcBox').hidden = !t.tubo;
+  $('#fluWrap').hidden = !t.tubo && t.fluencia === null;
+  $('#elongLabel').textContent = `% Elongación mín. (en ${t.base})`;
+  recalcular();
+}
+
+function recalcular(){
+  const tipo = $('#tipo').value, t = TIPOS[tipo], o = opcionesActuales();
+  $('#normasInfo').innerHTML = `<b>${esc(t.producto)}</b><br>` + normasDe(tipo, o).map(n => '• ' + esc(n)).join('<br>');
+  if (!t.tubo){
+    $('#grado').value = t.grado; $('#fluencia').value = t.fluencia ?? ''; $('#traccion').value = t.traccion; $('#elongacion').value = t.elong;
+    return;
+  }
+  const nt = NORMA_TUBOS[o.grado];
+  $('#grado').value = o.grado;
+  $('#fluencia').value = nt.fluencia[o.forma];
+  $('#traccion').value = nt.traccion;
+
+  const espItems = getItems().map(i => espesorDe(i.den)).filter(v => v);
+  const inp = $('#espesor'), res = $('#calcRes');
+  let e;
+  if (espItems.length){
+    e = Math.min(...espItems);
+    inp.value = numES(e.toFixed(2)); inp.readOnly = true;
+  } else {
+    inp.readOnly = false; e = parseNum(inp.value);
+  }
+  res.classList.remove('err');
+  if (!e || e <= 0){
+    $('#elongacion').value = '';
+    res.textContent = 'No se encontró el espesor en la denominación. Ingrésalo para calcular la elongación.';
+    res.classList.add('err');
+    return;
+  }
+  const multi = espItems.length > 1 && new Set(espItems).size > 1 ? ' Se usó el menor espesor de las denominaciones.' : '';
+  let v, txt;
+  if (e >= nt.eLim){
+    v = nt.elong; txt = `e = ${numES(e)} mm ≥ ${numES(nt.eLim)} mm: valor de tabla ${v} %.`;
+  } else if (nt.f){
+    const calc = nt.f(e); v = Math.round(calc + 1e-9);
+    txt = `e = ${numES(e)} mm < ${numES(nt.eLim)} mm: ${nt.fTxt} = ${numES(calc.toFixed(2))} → ${v} %.`;
+  } else {
+    v = nt.elong; txt = `e = ${numES(e)} mm < ${numES(nt.eLim)} mm: la norma deja la elongación por acuerdo con el fabricante; se certifica ${v} %.`;
+  }
+  $('#elongacion').value = String(v);
+  res.textContent = txt + multi;
+}
+
+function autoGrow(ta){ ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 3 + 'px'; }
+function itemRow(den = '', lote = ''){
+  const d = document.createElement('div');
+  d.className = 'item';
+  d.innerHTML = `
+    <div><label>Denominación</label><textarea class="den" rows="1" placeholder="3000030930 TUBO CUADRADO LC NEG 30X30X2,00X6000 mm">${esc(den)}</textarea></div>
+    <div class="lote"><label>Lote</label><input class="lot" value="${esc(lote)}" inputmode="numeric" placeholder="0000787453"></div>
+    <button type="button" class="del" aria-label="Quitar denominación">×</button>`;
+  const ta = d.querySelector('.den');
+  d.querySelector('.del').onclick = () => { if ($('#items').children.length > 1) d.remove(); else { ta.value = ''; d.querySelector('.lot').value = ''; autoGrow(ta); } recalcular(); };
+  ta.addEventListener('input', () => {
+    autoGrow(ta);
+    if ($('#tipo').value === 'tuboBC'){ const f = formaDe(ta.value); if (f) $('#optForma').value = f; }
+    recalcular();
+  });
+  $('#items').appendChild(d);
+  requestAnimationFrame(() => autoGrow(ta));
+}
+function getItems(){
+  return [...document.querySelectorAll('#items .item')].map(r => ({ den: r.querySelector('.den').value.replace(/\s+/g,' ').trim(), lote: r.querySelector('.lot').value.trim() })).filter(i => i.den || i.lote);
+}
+
+function leerForm(){
+  const tipo = $('#tipo').value, t = TIPOS[tipo], o = opcionesActuales();
+  const traz = document.querySelector('input[name="traz"]:checked');
+  const sinFluencia = !t.tubo && t.fluencia === null;
+  return {
+    id: editId || undefined,
+    tipo, tipoNombre: nombreTipo(tipo, o),
+    fecha: $('#fecha').value,
+    cliente: $('#cliente').value.trim(),
+    pedido: $('#pedido').value.trim(),
+    factura: $('#factura').value.trim(),
+    items: getItems(),
+    grado: $('#grado').value,
+    fluencia: sinFluencia ? '' : $('#fluencia').value,
+    traccion: $('#traccion').value,
+    elongacion: $('#elongacion').value.trim(),
+    espesor: t.tubo ? $('#espesor').value.trim() : '',
+    trazabilidad: traz ? traz.value : '',
+    origenTraz: $('#origenTraz').value,
+    obsTraz: traz && traz.value === 'Incorrecta' ? $('#obsTraz').value.trim() : '',
+    emitidoPor: $('#usuario').value.trim(),
+    tecnico: { normas: normasDe(tipo, o), producto: t.producto, base: t.base, sinFluencia, opciones: o }
+  };
+}
+function validar(d){
+  const err = [];
+  if (!d.fecha) err.push('fecha');
+  if (!d.cliente) err.push('cliente');
+  if (!d.pedido) err.push('pedido');
+  if (!d.items.length || d.items.some(i => !i.den || !i.lote)) err.push('denominación y lote en cada fila');
+  if (!d.elongacion) err.push(TIPOS[d.tipo].tubo ? 'espesor de pared' : '% elongación');
+  if (!d.trazabilidad) err.push('trazabilidad');
+  if (!d.origenTraz) err.push('origen de la trazabilidad');
+  if (d.trazabilidad === 'Incorrecta' && !d.obsTraz) err.push('observación de trazabilidad');
+  if (!d.emitidoPor) err.push('tu nombre');
+  return err;
+}
+
+function limpiarForm(){
+  editId = null;
+  $('#editBanner').hidden = true;
+  $('#btnGuardar').textContent = 'Guardar certificado';
+  ['cliente','pedido','factura','obsTraz','espesor','origenTraz'].forEach(id => $('#'+id).value = '');
+  $('#optA755').checked = true;
+  document.querySelectorAll('input[name="traz"]').forEach(r => r.checked = false);
+  $('#obsWrap').hidden = true;
+  $('#items').innerHTML = ''; itemRow();
+  $('#fecha').value = hoyISO();
+  aplicarTipo();
+}
+
+function cargarEnForm(r){
+  if (!r) return;
+  editId = r.id;
+  const o = (r.tecnico && r.tecnico.opciones) || {};
+  $('#tipo').value = TIPOS[r.tipo] ? r.tipo : 'tuboCirc';
+  $('#optA755').checked = o.a755 !== false;
+  if (o.grado && r.tipo === 'tuboBC') $('#optGrado').value = o.grado;
+  if (o.forma && r.tipo === 'tuboBC') $('#optForma').value = o.forma;
+  $('#fecha').value = r.fecha;
+  $('#cliente').value = r.cliente; $('#pedido').value = r.pedido; $('#factura').value = r.factura;
+  $('#items').innerHTML = '';
+  (r.items && r.items.length ? r.items : [{den:'',lote:''}]).forEach(i => itemRow(i.den, i.lote));
+  $('#espesor').value = r.espesor || '';
+  document.querySelectorAll('input[name="traz"]').forEach(x => x.checked = x.value === r.trazabilidad);
+  $('#obsWrap').hidden = r.trazabilidad !== 'Incorrecta';
+  $('#obsTraz').value = r.obsTraz || '';
+  $('#origenTraz').value = r.origenTraz || '';
+  aplicarTipo();
+  $('#editNum').textContent = r.numero;
+  $('#editBanner').hidden = false;
+  $('#btnGuardar').textContent = 'Guardar cambios';
+  cambiarTab('nuevo');
+  window.scrollTo({ top: 0 });
+}
+
+async function guardar(){
+  recalcular();
+  const d = leerForm();
+  const err = validar(d);
+  if (err.length){ toast('Falta completar: ' + err.join(', '), 4200); return; }
+  ls.set('cc_usuario', d.emitidoPor);
+  const btn = $('#btnGuardar'); btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Guardando…';
+  try {
+    let rec;
+    if (editId){
+      rec = await api('update', { data: d, usuario: d.emitidoPor });
+      const i = registros.findIndex(x => x.id === rec.id); if (i >= 0) registros[i] = rec;
+      toast(`${rec.numero} actualizado`);
+    } else {
+      rec = await api('create', { data: d });
+      registros.push(rec);
+      toast(`${rec.numero} guardado`);
+    }
+    limpiarForm();
+    renderRegistros(rec.id);
+    guardarPdfDrive(rec, true);
+    abrirPreview(rec);
+  } catch (e) {
+    toast('No se pudo guardar: ' + e.message, 5000);
+  } finally {
+    btn.disabled = false; if (btn.textContent === 'Guardando…') btn.textContent = txt;
+  }
+}
+
+/* ================= MODELO DEL CERTIFICADO (mismo diseño para HTML, PDF y Excel) ================= */
+const COLW = {1:3.86, 2:4.43, 3:11.14, 4:18.43, 5:15.86, 6:18.14, 7:27.14, 8:16.43, 9:13.14, 10:24.86, 11:5.43};
+const colPx = c => Math.round(COLW[c] * 7 + 5);
+const spanPx = (a, b) => { let s = 0; for (let c = a; c <= b; c++) s += colPx(c); return s; };
+const LH = 18;
+const PARRAFO = 'Los parámetros anteriores responden a los requisitos para distintas y apropiadas aplicaciones del producto certificado en este documento.';
+const IMG = { logo: { col: 8, dx: 40, dy: 8, w: 330, h: 71 }, firma: { col: 3, dx: 20, dy: 6, w: 190, h: 101 } };
+
+function lineas(t, px, bold){
+  const cw = bold ? 11.5 : 10.5;
+  return String(t || '').split('\n').reduce((n, l) => n + Math.max(1, Math.ceil(l.length * cw / (px - 14))), 0);
+}
+function tecnicoDe(r){
+  if (r.tecnico && r.tecnico.normas) return r.tecnico;
+  const t = TIPOS[r.tipo] || TIPOS.tuboCirc;
+  return { normas: t.normas, producto: t.producto, base: t.base, sinFluencia: !t.tubo && t.fluencia === null };
+}
+
+function modeloCert(r){
+  const tec = tecnicoDe(r);
+  const rows = [];
+  const add = (h, cells = []) => { rows.push({ h, cells }); return rows.length - 1; };
+  const T = (c1, c2, v, o = {}) => ({ c1, c2, v, ...o });
+  const full = (txt, b) => lineas(txt, spanPx(3, 10), b) * LH + 12;
+
+  add(15.75, [T(8, 10, '', { img: 'logo' })]);
+  add(15.75, r.numero ? [T(3, 7, `Certificado N° ${r.numero}`, { sm: 1 })] : []);
+  add(15.75); add(15.75); add(15.75); add(15.75);
+  add(23.25, [T(3, 7, fechaTexto(r.fecha))]);
+  add(15.75); add(15.75);
+  add(Math.max(41.45, lineas(r.cliente, spanPx(4, 8)) * LH + 12), [T(3, 3, 'Cliente:', { b: 1 }), T(4, 8, r.cliente), T(9, 9, 'Pedido:', { b: 1, al: 'center' }), T(10, 10, r.pedido)]);
+  add(29.25, r.factura ? [T(9, 9, 'Factura:', { b: 1, al: 'center' }), T(10, 10, r.factura)] : []);
+  add(15.75);
+  add(38, [T(3, 10, '', { rich: [['Mediante el presente documento, ', 0], ['NOVACERO S.A', 1], ['. certifica que:', 0]] })]);
+  add(26, [T(3, 10, 'Conforme a:')]);
+  tec.normas.forEach(n => add(full('• ' + n, 1), [T(3, 10, '• ' + n, { b: 1 })]));
+  add(30, [T(3, 10, 'El producto comercializado:')]);
+  add(full(tec.producto, 1), [T(3, 10, tec.producto, { b: 1 })]);
+  add(12);
+  add(35, [T(4, 7, 'DENOMINACIÓN', { b: 1, al: 'center', bd: 1 }), T(8, 10, 'LOTE', { b: 1, al: 'center', bd: 1 })]);
+  (r.items && r.items.length ? r.items : [{ den: '', lote: '' }]).forEach(i =>
+    add(Math.max(35, lineas(i.den, spanPx(4, 7)) * LH + 12), [T(4, 7, i.den, { al: 'center', bd: 1 }), T(8, 10, i.lote, { al: 'center', bd: 1 })]));
+  add(24);
+  add(30, [T(3, 10, 'Cumple con los siguientes requerimientos:')]);
+  const spans = tec.sinFluencia ? [[5, 7], [8, 10]] : [[5, 6], [7, 8], [9, 10]];
+  const heads = (tec.sinFluencia ? [] : ['Limite de Fluencia\n(MPa)']).concat(['Resistencia a la Tracción\n(MPa)', `% Elongación, mín.\n(en ${tec.base})`]);
+  const vals = (tec.sinFluencia ? [] : [r.fluencia]).concat([r.traccion, r.elongacion]);
+  add(35, [T(5, 10, 'Requisitos mecánicos', { b: 1, al: 'center', bd: 1 })]);
+  add(55, [T(4, 4, 'Grado del Acero', { al: 'center', bd: 1 })].concat(spans.map((s, k) => T(s[0], s[1], heads[k], { al: 'center', bd: 1 }))));
+  add(36, [T(4, 4, r.grado, { al: 'center', bd: 1 })].concat(spans.map((s, k) => T(s[0], s[1], vals[k], { al: 'center', bd: 1 }))));
+  add(24);
+  add(full(PARRAFO, 0), [T(3, 10, PARRAFO)]);
+  add(15.75); add(15.75);
+  add(20, [T(3, 5, 'Atentamente,')]);
+  add(18, [T(3, 3, '', { img: 'firma' })]); add(40); add(20);
+  add(20, [T(3, 7, CONFIG.FIRMANTE)]);
+  CONFIG.CARGO.forEach((c, k) => add(k === CONFIG.CARGO.length - 1 ? 27.75 : 19, [T(3, 7, c, { b: 1 })]));
+  return rows;
+}
+
+function certHTML(r){
+  const rows = modeloCert(r);
+  let h = '<div class="cert"><table class="ct"><colgroup>';
+  for (let c = 2; c <= 11; c++) h += `<col style="width:${colPx(c)}px">`;
+  h += '</colgroup><tbody>';
+  rows.forEach(row => {
+    h += `<tr style="height:${(row.h * 4 / 3).toFixed(1)}px">`;
+    const porCol = {}; row.cells.forEach(x => porCol[x.c1] = x);
+    for (let c = 2; c <= 11;){
+      const x = porCol[c];
+      if (!x){ h += '<td></td>'; c++; continue; }
+      const cls = [x.bd && 'bd', x.b && 'b', x.sm && 'sm', x.img && 'im', (!x.bd && x.c1 === x.c2 && !x.img) && 'nw'].filter(Boolean).join(' ');
+      let cont;
+      if (x.img){ const g = IMG[x.img]; cont = `<img src="${x.img === 'logo' ? LOGO : FIRMA}" alt="" style="left:${g.dx}px;top:${g.dy}px;width:${g.w}px;height:${g.h}px">`; }
+      else if (x.rich) cont = x.rich.map(([t, b]) => b ? `<b>${esc(t)}</b>` : esc(t)).join('');
+      else cont = esc(x.v).replace(/\n/g, '<br>');
+      h += `<td colspan="${x.c2 - x.c1 + 1}" class="${cls}" style="text-align:${x.al || 'left'}">${cont}</td>`;
+      c = x.c2 + 1;
+    }
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+/* ================= VISTA PREVIA / IMPRESIÓN / PDF / EXCEL ================= */
+let actual = null;
+function certVistaHTML(r){
+  const tec = tecnicoDe(r);
+  const cols = tec.sinFluencia
+    ? [['Resistencia a la Tracción<br>(MPa)', r.traccion], [`% Elongación, mín.<br>(en ${tec.base})`, r.elongacion]]
+    : [['Limite de Fluencia<br>(MPa)', r.fluencia], ['Resistencia a la Tracción<br>(MPa)', r.traccion], [`% Elongación, mín.<br>(en ${tec.base})`, r.elongacion]];
+  const items = (r.items || []).map(i => `<tr><td style="text-align:left">${esc(i.den)}</td><td>${esc(i.lote)}</td></tr>`).join('') || '<tr><td>&nbsp;</td><td></td></tr>';
+  return `<div class="cv"><div class="cv-frame">
+    ${r.numero ? `<div class="num">Certificado N° ${esc(r.numero)}</div>` : ''}
+    <div class="logo"><img src="${LOGO}" alt="Novacero"></div>
+    <p>${esc(fechaTexto(r.fecha))}</p>
+    <div class="cli">
+      <div><b>Cliente:</b><span>${esc(r.cliente)}</span></div>
+      <div class="kv"><b>Pedido:</b><span>${esc(r.pedido)}</span>${r.factura ? `<b>Factura:</b><span>${esc(r.factura)}</span>` : ''}</div>
+    </div>
+    <p>Mediante el presente documento, <b>NOVACERO S.A</b>. certifica que:</p>
+    <p>Conforme a:</p>
+    ${tec.normas.map(n => `<p class="norma">• ${esc(n)}</p>`).join('')}
+    <p>El producto comercializado:</p>
+    <p class="norma">${esc(tec.producto)}</p>
+    <table class="t-items"><thead><tr><th style="width:74%">DENOMINACIÓN</th><th>LOTE</th></tr></thead><tbody>${items}</tbody></table>
+    <p>Cumple con los siguientes requerimientos:</p>
+    <table class="t-req">
+      <tr><td class="nob" style="width:22%"></td><td colspan="${cols.length}"><b>Requisitos mecánicos</b></td></tr>
+      <tr><td>Grado del Acero</td>${cols.map(c => `<td>${c[0]}</td>`).join('')}</tr>
+      <tr><td>${esc(r.grado)}</td>${cols.map(c => `<td>${esc(c[1])}</td>`).join('')}</tr>
+    </table>
+    <p>${PARRAFO}</p>
+    <p style="margin-top:26px">Atentamente,</p>
+    <div class="firma">
+      <img src="${FIRMA}" alt="">
+      <span>${esc(CONFIG.FIRMANTE)}</span>
+      ${CONFIG.CARGO.map(c => `<b>${esc(c)}</b>`).join('')}
+    </div>
+  </div></div>`;
+}
+function abrirPreview(r){
+  actual = r;
+  $('#modalTitle').textContent = r.numero ? `Certificado ${r.numero}` : 'Vista previa (sin guardar)';
+  $('#mEdit').hidden = !r.id;
+  const warn = r.trazabilidad === 'Incorrecta' ? `<div class="warn">Trazabilidad incorrecta (${esc(r.origenTraz || 'origen sin indicar')}): ${esc(r.obsTraz || 'revisar antes de entregar')}</div>` : '';
+  $('#modalBody').innerHTML = warn + `<div class="sheet-wrap v1" id="sheetWrap">${certVistaHTML(r)}</div>`;
+  $('#modal').hidden = false;
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(ajustarZoom);
+}
+function ajustarZoom(){
+  const w = $('#sheetWrap'); if (!w) return;
+  const disp = $('#modalBody').clientWidth - 20;
+  const s = Math.min(1, disp / 794);
+  w.style.transform = `scale(${s})`;
+  w.style.marginBottom = `${-(1 - s) * w.offsetHeight}px`;
+  w.style.marginRight = `${-(1 - s) * 794}px`;
+  w.style.marginLeft = `${Math.max(0, (disp - 794 * s) / 2)}px`;
+}
+window.addEventListener('resize', () => { ajustarZoom(); if (!$('#panel-registros').hidden) renderGrafico(); });
+function cerrarPreview(){ $('#modal').hidden = true; document.body.style.overflow = ''; }
+
+function confirmarTraz(r){
+  return r.trazabilidad !== 'Incorrecta' || confirm('La trazabilidad está marcada como INCORRECTA. ¿Deseas continuar de todas formas?');
+}
+function nombreArchivo(r, ext){
+  const cli = String(r.cliente || 'cliente').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w ]+/g,'').trim().replace(/\s+/g,'_').slice(0,40);
+  return `${r.numero || 'borrador'}_${cli}.${ext}`;
+}
+async function renderOculto(r){
+  const area = $('#pdfArea'); area.innerHTML = certHTML(r);
+  await Promise.all([...area.querySelectorAll('img')].map(i => i.decode ? i.decode().catch(() => {}) : 0));
+  return area.firstElementChild;
+}
+
+async function imprimir(r){
+  if (!confirmarTraz(r)) return;
+  const el = await renderOculto(r);
+  const alto = el.offsetHeight;
+  $('#pdfArea').innerHTML = '';
+  const z = Math.min(718 / 1135, 1047 / alto);
+  $('#printArea').innerHTML = certHTML(r);
+  $('#printArea .cert').style.zoom = z;
+  const t = document.title; document.title = nombreArchivo(r, 'x').slice(0, -2);
+  setTimeout(() => { window.print(); document.title = t; }, 250);
+}
+
+async function generarPdf(r){
+  if (!window.html2canvas || !window.jspdf) throw new Error('El generador de PDF aún no carga');
+  try {
+    const el = await renderOculto(r);
+    const canvas = await html2canvas(el, { scale: 2, backgroundColor: '#ffffff', logging: false });
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+    let w = 190, h = canvas.height * w / canvas.width;
+    if (h > 277){ h = 277; w = canvas.width * h / canvas.height; }
+    doc.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', (210 - w) / 2, 10, w, h);
+    return doc;
+  } finally { $('#pdfArea').innerHTML = ''; }
+}
+async function pdf(r){
+  if (!confirmarTraz(r)) return;
+  toast('Generando PDF…');
+  try { (await generarPdf(r)).save(nombreArchivo(r, 'pdf')); }
+  catch (e) { toast('Error al generar PDF: ' + e.message + '. Usa Imprimir → Guardar como PDF.', 4500); }
+}
+/* Guarda el PDF del certificado en Google Drive y registra el enlace en la hoja */
+async function guardarPdfDrive(r, silencioso = false){
+  if (!CONFIG.API_URL){ if (!silencioso) toast('En modo prueba no se guarda en Drive. Conecta la app a Google Sheets.', 4500); return null; }
+  if (!r || !r.id) return null;
+  try {
+    if (!silencioso) toast('Guardando PDF en Drive…', 6000);
+    const doc = await generarPdf(r);
+    const b64 = doc.output('datauristring').split(',')[1];
+    const res = await api('savePdf', { id: r.id, nombre: nombreArchivo(r, 'pdf'), base64: b64 });
+    const i = registros.findIndex(x => x.id === r.id);
+    if (i >= 0){ registros[i].pdfUrl = res.pdfUrl; registros[i].pdfId = res.pdfId; }
+    if (actual && actual.id === r.id){ actual.pdfUrl = res.pdfUrl; }
+    if ($('#selCert').value === r.id) renderDetalle();
+    toast(`PDF de ${r.numero} guardado en Drive`);
+    return res;
+  } catch (e) {
+    toast(`${r.numero}: no se pudo guardar el PDF en Drive (${e.message}). Usa "Guardar PDF en Drive" en la ficha.`, 6000);
+    return null;
+  }
+}
+
+const THIN = { style: 'thin', color: { argb: 'FF000000' } };
+async function excelCert(r){
+  if (!confirmarTraz(r)) return;
+  if (!window.ExcelJS){ toast('El generador de Excel aún no carga. Revisa la conexión.', 4000); return; }
+  const rows = modeloCert(r);
+  const last = rows.length + 1;
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'NOVACERO S.A.';
+  const ws = wb.addWorksheet('Certificado', {
+    views: [{ showGridLines: false }],
+    pageSetup: { paperSize: 9, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1, horizontalCentered: true,
+      margins: { left: 0.3937, right: 0.3937, top: 0.3937, bottom: 0.3937, header: 0, footer: 0 }, printArea: `B2:K${last}` }
+  });
+  for (let c = 1; c <= 11; c++) ws.getColumn(c).width = COLW[c];
+  ws.getRow(1).height = 15.75;
+  const imgs = [];
+
+  rows.forEach((row, i) => {
+    const er = i + 2;
+    ws.getRow(er).height = row.h;
+    row.cells.forEach(x => {
+      if (x.img){ imgs.push({ tipo: x.img, er }); return; }
+      if (x.c2 > x.c1) ws.mergeCells(er, x.c1, er, x.c2);
+      const font = { name: 'Tahoma', size: x.sm ? 10 : 14, bold: !!x.b };
+      if (x.sm) font.color = { argb: 'FF555555' };
+      for (let c = x.c1; c <= x.c2; c++){
+        const st = { font: { ...font }, alignment: { horizontal: x.al || 'left', vertical: 'middle', wrapText: !!(x.bd || x.c2 > x.c1) } };
+        if (x.bd) st.border = { top: THIN, bottom: THIN, left: c === x.c1 ? THIN : undefined, right: c === x.c2 ? THIN : undefined };
+        ws.getCell(er, c).style = st;
+      }
+      const cell = ws.getCell(er, x.c1);
+      if (x.rich) cell.value = { richText: x.rich.map(([t, b]) => ({ text: t, font: { name: 'Tahoma', size: 14, bold: !!b } })) };
+      else { const n = /^\d{1,9}(\.\d+)?$/.test(String(x.v)) && !/^0\d/.test(String(x.v)) ? Number(x.v) : x.v; cell.value = n; }
+    });
+  });
+
+  const marco = (er, c, lado) => { const cell = ws.getCell(er, c); const st = { ...cell.style }; st.border = { ...(st.border || {}), [lado]: THIN }; cell.style = st; };
+  for (let er = 2; er <= last; er++){ marco(er, 2, 'left'); marco(er, 11, 'right'); }
+  for (let c = 2; c <= 11; c++){ marco(2, c, 'top'); marco(last, c, 'bottom'); }
+
+  imgs.forEach(({ tipo, er }) => {
+    const g = IMG[tipo];
+    const id = wb.addImage({ base64: (tipo === 'logo' ? LOGO : FIRMA).split(',')[1], extension: 'png' });
+    ws.addImage(id, { tl: { col: g.col - 1 + g.dx / colPx(g.col), row: er - 1 + g.dy / 21 }, ext: { width: g.w, height: g.h }, editAs: 'oneCell' });
+  });
+
+  const buf = await wb.xlsx.writeBuffer();
+  descargar(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), nombreArchivo(r, 'xlsx'));
+}
+
+/* ================= CERTIFICADOS CREADOS ================= */
+function filtrados(){
+  const q = $('#q').value.trim().toLowerCase();
+  const ft = $('#fTipo').value, fz = $('#fTraz').value, fo = $('#fOrigen').value;
+  return registros.filter(r => {
+    if (ft && r.tipo !== ft) return false;
+    if (fz && r.trazabilidad !== fz) return false;
+    if (fo && r.origenTraz !== fo) return false;
+    if (!q) return true;
+    const hay = [r.numero, r.cliente, r.pedido, r.factura, r.tipoNombre, r.emitidoPor, r.origenTraz, ...(r.items||[]).flatMap(i => [i.den, i.lote])].join(' ').toLowerCase();
+    return q.split(/\s+/).every(p => hay.includes(p));
+  }).sort((a, b) => (b.fecha + b.numero).localeCompare(a.fecha + a.numero));
+}
+
+
+const ORIGENES = ['Lasso', 'Quito', 'CD Austro', 'Gye'];
+/* Gráfico de barras: trazabilidad correcta / incorrecta por origen.
+   Respeta búsqueda y tipo; ignora los filtros de trazabilidad y origen para mostrar la comparación completa. */
+function renderGrafico(){
+  const q = $('#q').value.trim().toLowerCase(), ft = $('#fTipo').value;
+  const base = registros.filter(r => {
+    if (ft && r.tipo !== ft) return false;
+    if (!q) return true;
+    const hay = [r.numero, r.cliente, r.pedido, r.factura, r.tipoNombre, r.emitidoPor, r.origenTraz, ...(r.items||[]).flatMap(i => [i.den, i.lote])].join(' ').toLowerCase();
+    return q.split(/\s+/).every(p => hay.includes(p));
+  });
+  const grupos = ORIGENES.slice();
+  if (base.some(r => !ORIGENES.includes(r.origenTraz))) grupos.push('Sin origen');
+  const datos = grupos.map(g => {
+    const rs = base.filter(r => g === 'Sin origen' ? !ORIGENES.includes(r.origenTraz) : r.origenTraz === g);
+    const ok = rs.filter(r => r.trazabilidad === 'Correcta').length;
+    const bad = rs.filter(r => r.trazabilidad === 'Incorrecta').length;
+    return { g, ok, bad, tot: ok + bad };
+  });
+
+  const W = Math.max(320, Math.round($('#grafOrigen').clientWidth) || 640), H = W < 500 ? 230 : 260, mL = 30, mR = 6, mT = 22, mB = 50;
+  const maxV = Math.max(1, ...datos.flatMap(d => [d.ok, d.bad]));
+  const paso = Math.max(1, Math.ceil(maxV / 4));
+  const tope = paso * Math.ceil(maxV / paso);
+  const y = v => mT + (H - mT - mB) * (1 - v / tope);
+  const anchoG = (W - mL - mR) / datos.length;
+  const bw = Math.min(46, anchoG * 0.34);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Certificados con trazabilidad correcta e incorrecta por origen" font-family="Barlow, Arial, sans-serif">`;
+  for (let v = 0; v <= tope; v += paso){
+    svg += `<line x1="${mL}" x2="${W - mR}" y1="${y(v)}" y2="${y(v)}" stroke="#E3E8EE"/>`;
+    svg += `<text x="${mL - 8}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="#5B6673">${v}</text>`;
+  }
+  datos.forEach((d, i) => {
+    const cx = mL + anchoG * i + anchoG / 2;
+    [[d.ok, '#1E7B4A', cx - bw - 2], [d.bad, '#B3261E', cx + 2]].forEach(([v, color, x]) => {
+      const yy = y(v), h = y(0) - yy;
+      svg += `<rect x="${x}" y="${yy}" width="${bw}" height="${Math.max(0, h)}" fill="${color}" rx="2"><title>${esc(d.g)}: ${v}</title></rect>`;
+      svg += `<text x="${x + bw / 2}" y="${yy - 5}" text-anchor="middle" font-size="13" font-weight="600" fill="#17202B">${v}</text>`;
+    });
+    const pct = d.tot ? Math.round(d.bad * 100 / d.tot) : 0;
+    svg += `<text x="${cx}" y="${H - mB + 20}" text-anchor="middle" font-size="14" font-weight="600" fill="#0F2D57">${esc(d.g)}</text>`;
+    svg += `<text x="${cx}" y="${H - mB + 38}" text-anchor="middle" font-size="${W < 500 ? 11 : 12}" fill="${pct ? '#B3261E' : '#5B6673'}">${d.tot ? pct + (W < 500 ? ' % inc.' : ' % incorrecta') : (W < 500 ? '—' : 'sin datos')}</text>`;
+  });
+  svg += `<line x1="${mL}" x2="${W - mR}" y1="${y(0)}" y2="${y(0)}" stroke="#C9D2DC"/></svg>`;
+  $('#grafOrigen').innerHTML = svg;
+
+  const totBad = datos.reduce((a, d) => a + d.bad, 0);
+  const peor = datos.filter(d => d.bad).sort((a, b) => b.bad - a.bad)[0];
+  $('#grafNota').textContent = !base.length ? 'Aún no hay certificados para graficar.'
+    : totBad ? `${totBad} de ${base.length} certificados con trazabilidad incorrecta; ${peor.g} concentra ${Math.round(peor.bad * 100 / totBad)} % de las incorrectas.`
+    : `${base.length} certificados, todos con trazabilidad correcta.`;
+}
+function renderRegistros(seleccionar){
+  const f = filtrados();
+  const sel = $('#selCert');
+  const previo = seleccionar || sel.value;
+  const inc = f.filter(r => r.trazabilidad === 'Incorrecta').length;
+  $('#stats').innerHTML = `<span><b>${f.length}</b> de ${registros.length} certificados</span><span><b>${inc}</b> con trazabilidad incorrecta</span>`;
+  sel.innerHTML = f.length
+    ? f.map(r => `<option value="${esc(r.id)}">${esc(r.numero)} · ${esc(r.cliente)} · ${esc(r.fecha)}</option>`).join('')
+    : `<option value="">${registros.length ? 'Sin coincidencias' : 'Aún no hay certificados'}</option>`;
+  if (previo && f.some(r => r.id === previo)) sel.value = previo;
+  renderDetalle();
+  renderGrafico();
+  const clientes = [...new Set(registros.map(r => r.cliente).filter(Boolean))].sort();
+  $('#clientesList').innerHTML = clientes.map(c => `<option value="${esc(c)}">`).join('');
+}
+
+function renderDetalle(){
+  const r = buscarId($('#selCert').value);
+  if (!r){
+    $('#detalle').innerHTML = `<div class="empty">${registros.length ? 'Ningún certificado coincide con la búsqueda.' : 'Aún no hay certificados. Crea el primero en la pestaña Nuevo certificado.'}</div>`;
+    return;
+  }
+  $('#detalle').innerHTML = `
+    <article class="detalle">
+      <div class="rec-h"><span class="rec-num">${esc(r.numero)}</span><span class="badge ${r.trazabilidad === 'Correcta' ? 'ok' : 'bad'}">Trazabilidad ${esc(String(r.trazabilidad).toLowerCase())}</span></div>
+      <div class="rec-cli">${esc(r.cliente)}</div>
+      <div class="rec-meta">${esc(r.tipoNombre)} — ${esc(r.fecha)}</div>
+      <div class="rec-meta">Pedido ${esc(r.pedido)}${r.factura ? ' — Factura ' + esc(r.factura) : ''}</div>
+      <div class="rec-meta">${(r.items||[]).map(i => esc(i.den) + ' — <b>Lote ' + esc(i.lote) + '</b>').join('<br>')}</div>
+      <div class="rec-meta">Grado ${esc(r.grado)} — Fluencia ${esc(r.fluencia || '-')} — Tracción ${esc(r.traccion)} — Elongación ${esc(r.elongacion)} %</div>
+      <div class="rec-meta">Origen de la trazabilidad: <b>${esc(r.origenTraz || 'sin indicar')}</b></div>
+      ${r.obsTraz ? `<div class="rec-meta" style="color:var(--bad)">${esc(r.obsTraz)}</div>` : ''}
+      <div class="rec-meta">PDF: ${r.pdfUrl ? `<a href="${esc(r.pdfUrl)}" target="_blank" rel="noopener">abrir PDF guardado en Drive</a>` : 'aún no guardado en Drive'}</div>
+      <div class="rec-meta">Emitido por ${esc(r.emitidoPor)}${r.modificado ? ` — editado ${esc(r.modificado)} por ${esc(r.modificadoPor)}` : ''}</div>
+      <div class="btn-row">
+        <button class="btn primary" data-a="ver">Ver / imprimir</button>
+        <button class="btn ghost" data-a="editar">Editar</button>
+        <button class="btn ghost" data-a="pdf">PDF</button>
+        <button class="btn ghost" data-a="xls">Excel</button>
+        <button class="btn ghost" data-a="drive" style="grid-column:1 / -1">${r.pdfUrl ? 'Actualizar PDF en Drive' : 'Guardar PDF en Drive'}</button>
+      </div>
+    </article>`;
+}
+
+async function cargarRegistros(){
+  $('#detalle').innerHTML = '<div class="empty">Cargando certificados…</div>';
+  try { registros = await api('list'); renderRegistros(); }
+  catch (e) { $('#detalle').innerHTML = `<div class="empty">No se pudieron cargar los registros: ${esc(e.message)}. Revisa la conexión y toca Actualizar lista.</div>`; }
+}
+
+async function exportarTodo(){
+  if (!window.ExcelJS){ toast('El generador de Excel aún no carga. Revisa la conexión.', 4000); return; }
+  const f = filtrados();
+  if (!f.length){ toast('No hay certificados para exportar'); return; }
+  const wb = new ExcelJS.Workbook();
+  const hoja = (nombre, cols, filas) => {
+    const ws = wb.addWorksheet(nombre, { views: [{ state: 'frozen', ySplit: 1 }] });
+    ws.columns = cols.map(([header, key, width]) => ({ header, key, width }));
+    filas.forEach(x => ws.addRow(x));
+    const hr = ws.getRow(1); hr.height = 30;
+    hr.eachCell(c => { c.font = { bold: true, color: { argb: 'FFFFFFFF' }, name: 'Arial', size: 10 }; c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F2D57' } }; c.alignment = { vertical: 'middle', wrapText: true }; });
+    ws.eachRow((row, n) => { if (n > 1) row.eachCell(c => { c.font = { name: 'Arial', size: 10 }; c.alignment = { vertical: 'top', wrapText: true }; }); });
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: cols.length } };
+    return ws;
+  };
+  const w1 = hoja('Certificados', [
+    ['N° Certificado','numero',16],['Fecha','fecha',12],['Tipo','tipoNombre',32],['Cliente','cliente',40],['Pedido','pedido',14],['Factura','factura',18],
+    ['Grado','grado',10],['Fluencia (MPa)','fluencia',12],['Tracción (MPa)','traccion',12],['% Elongación mín.','elongacion',12],['Espesor ref. (mm)','espesor',12],
+    ['N° lotes','nl',9],['Trazabilidad','trazabilidad',13],['Origen trazabilidad','origenTraz',16],['Observación trazabilidad','obsTraz',36],['Emitido por','emitidoPor',22],['Creado','creado',19],['Modificado','modificado',19],['Modificado por','modificadoPor',22],['PDF en Drive','pdfUrl',45]
+  ], f.map(r => ({ ...r, nl: (r.items||[]).length })));
+  w1.eachRow((row, n) => { if (n > 1){ const c = row.getCell('trazabilidad'); c.font = { name: 'Arial', size: 10, bold: true, color: { argb: c.value === 'Incorrecta' ? 'FFB3261E' : 'FF1E7B4A' } }; } });
+  hoja('Detalle por lote', [
+    ['N° Certificado','numero',16],['Fecha','fecha',12],['Cliente','cliente',38],['Pedido','pedido',14],['Factura','factura',18],['Tipo','tipoNombre',30],
+    ['Código','codigo',12],['Denominación','den',52],['Lote','lote',14],['Trazabilidad','trazabilidad',13],['Origen trazabilidad','origenTraz',16]
+  ], f.flatMap(r => (r.items||[]).map(i => ({ ...r, den: i.den, lote: i.lote, codigo: (i.den.match(/^\d{8,}/)||[''])[0] }))));
+  const buf = await wb.xlsx.writeBuffer();
+  descargar(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `Registro_certificados_${hoyISO()}.xlsx`);
+}
+
+/* ================= NAVEGACIÓN Y EVENTOS ================= */
+function cambiarTab(tab){
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === tab));
+  $('#panel-nuevo').hidden = tab !== 'nuevo';
+  $('#panel-registros').hidden = tab !== 'registros';
+  if (tab === 'registros') renderGrafico();
+  $('#actionsNuevo').hidden = tab !== 'nuevo';
+  window.scrollTo({ top: 0 });
+}
+const buscarId = id => registros.find(r => r.id === id);
+
+document.addEventListener('DOMContentLoaded', () => {
+  $('#demoBanner').hidden = !!CONFIG.API_URL;
+  initTipos();
+  $('#usuario').value = ls.get('cc_usuario', '');
+  limpiarForm();
+
+  document.querySelectorAll('.tab').forEach(b => b.onclick = () => cambiarTab(b.dataset.tab));
+  $('#tipo').onchange = aplicarTipo;
+  ['#optGrado', '#optForma', '#optA755'].forEach(s => $(s).addEventListener('change', recalcular));
+  $('#espesor').addEventListener('input', recalcular);
+  $('#addItem').onclick = () => { itemRow(); document.querySelector('#items .item:last-child .den').focus(); };
+  document.querySelectorAll('input[name="traz"]').forEach(r => r.onchange = () => { $('#obsWrap').hidden = !(r.checked && r.value === 'Incorrecta'); });
+  $('#cancelEdit').onclick = () => { limpiarForm(); toast('Edición cancelada'); };
+  $('#btnGuardar').onclick = guardar;
+  $('#btnPreview').onclick = () => { recalcular(); const d = leerForm(); d.numero = editId ? (buscarId(editId)||{}).numero : ''; abrirPreview(d); };
+
+  $('#mClose').onclick = cerrarPreview;
+  $('#mPrint').onclick = () => imprimir(actual);
+  $('#mPdf').onclick = () => pdf(actual);
+  $('#mXls').onclick = () => excelCert(actual);
+  $('#mEdit').onclick = () => { const r = buscarId(actual.id); cerrarPreview(); cargarEnForm(r); };
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) cerrarPreview(); });
+
+  ['q', 'fTipo', 'fTraz', 'fOrigen'].forEach(id => $('#' + id).addEventListener('input', () => renderRegistros()));
+  $('#selCert').addEventListener('change', renderDetalle);
+  $('#detalle').addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b) return;
+    const r = buscarId($('#selCert').value); if (!r) return;
+    ({ ver: () => abrirPreview(r), editar: () => cargarEnForm(r), pdf: () => pdf(r), xls: () => excelCert(r), drive: () => guardarPdfDrive(r) })[b.dataset.a]();
+  });
+  $('#btnExport').onclick = exportarTodo;
+  $('#btnReload').onclick = cargarRegistros;
+
+  cargarRegistros();
+});
+</script>
+</body>
+</html>
